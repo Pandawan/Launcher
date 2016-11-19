@@ -1,0 +1,30 @@
+{
+  "name": "launcher",
+  "version": "1.0.0",
+  "description": "A game launcher made with electron",
+  "build": {
+    "appId": "xyz.pandawan.game-launcher"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+	"start": "electron ./app"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PandawanFr/Launcher.git"
+  },
+  "keywords": [
+    "game",
+    "launcher",
+    "electron"
+  ],
+  "author": "Pandawan",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/PandawanFr/Launcher/issues"
+  },
+  "homepage": "https://github.com/PandawanFr/Launcher#readme",
+  "devDependencies": {
+    "electron": "^1.4.7"
+  }
+}
