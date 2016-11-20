@@ -1,5 +1,5 @@
 {
-  "name": "launcher-app",
+  "name": "game-launcher",
   "version": "1.0.0",
   "description": "A game launcher made with electron",
   "main": "index.js",
@@ -7,5 +7,6 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Pandawan",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {}
 }

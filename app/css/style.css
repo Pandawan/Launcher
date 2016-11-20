@@ -1,0 +1,50 @@
+html, body {
+	overflow: hidden;
+}
+
+
+#main {
+	margin: 1em;
+}
+
+#banner {
+	margin-bottom: 1em;
+}
+
+#footer {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+}
+
+#footer .hero-body {
+	padding: 25px 20px;
+}
+
+#play-btn {
+	padding-left: 40px;
+	padding-right: 40px;
+	float: right;
+}
+
+#progress-bar {
+	margin: 0.5em;
+}
+
+#progress-text {
+	margin-top: 0.5em;
+	margin-left: 0.75em;
+}
+
+#image {
+	border-radius: 5px;
+}
+
+#text-box {
+	overflow-y: scroll;
+}
+
+#content-box {
+	max-height: 5em;
+}
