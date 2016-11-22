@@ -8,5 +8,8 @@
   },
   "author": "Pandawan",
   "license": "MIT",
-  "devDependencies": {}
+  "devDependencies": {},
+  "dependencies": {
+    "is-online": "^5.1.2"
+  }
 }

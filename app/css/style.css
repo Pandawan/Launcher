@@ -37,7 +37,7 @@ html, body {
 	margin-left: 0.75em;
 }
 
-#image {
+#changelog-image {
 	border-radius: 5px;
 }
 
@@ -45,6 +45,6 @@ html, body {
 	overflow-y: scroll;
 }
 
-#content-box {
+.content-box {
 	max-height: 5em;
 }
