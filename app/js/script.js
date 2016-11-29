@@ -1,10 +1,18 @@
 var isOnline = require('is-online');
+var http = require('http');
+var fs = require('fs');
+var jsonfile = require('jsonfile');
+var unzip = require('unzip');
+
 var data = {};
+var updating = false;
 
 // Called on window start
 function Startup () {
     // CLick event for play button
     document.getElementById('play-btn').addEventListener("click", Play);
+
+    CreateJsonData();
 
     isOnline(function(err, online) {
         if (online == true) {
@@ -20,14 +28,26 @@ function Startup () {
 
 }
 
+// Call this on Button click
 function Play () {
     // Check for updates
     Update(LaunchGame);
 }
 
+// Start the application
 function LaunchGame () {
-    // TODO: Start game here
-    UpdateProgress("0", "Starting game...");
+    if (updating)
+    return;
+
+    UpdateProgress("100", "Starting game...");
+    var exec = require('child_process').execFile;
+    var start =function(){
+        exec(AppPath(), function(err, data) {
+            console.log(err)
+            console.log(data.toString());
+        });
+    }
+    start();
 }
 
 // Call this when an update is available and play is clicked
@@ -35,22 +55,137 @@ function Update (callback) {
     UpdateProgress("0", "Checking for updates...");
     isOnline(function(err, online) {
         if (online == true){
+
+            updating = true;
+
             // Get data again just to be sure
             FetchData();
-            // TODO: Check if there's a new version
+
+            if (NeedsUpdate() == false){
+                UpdateProgress("0", "No update found...");
+                return;
+            }
+
             UpdateProgress("0", "Update found...");
 
-            // TODO: Do all the downloading process
-            UpdateProgress("0", "Downloading...");
+            UpdateProgress("25", "Downloading...");
 
-            // Done updating, callback
-            callback();
-        }else {
+            if (!fs.existsSync('./download')){
+                fs.mkdirSync('./download');
+            }
+
+
+            // Download the file
+            var file = fs.createWriteStream("./download/game.zip");
+            var request = http.get(data.update.url, function(response) {
+                response.pipe(file);
+            });
+
+            file.on('close', function () {
+                UpdateProgress("50", "Successfully downloaded! Unzipping...");
+
+                // Create folder if doesn't exist
+                if (!fs.existsSync('./game')){
+                    fs.mkdirSync('./game');
+                }
+
+                var zip = fs.createReadStream('./download/game.zip').pipe(unzip.Extract({ path: './game' }).on('close', function () {
+                    UpdateProgress("75", "Finished downloading! Cleaning things up...");
+                    Clean('./download');
+                    UpdateData({version: data.update.version});
+                    UpdateProgress("100", "Done updating!");
+                    updating = false;
+
+                    // Done updating, callback
+                    callback();
+                    file.close();
+                }));
+            });
+
+        }
+        else {
             Offline();
             UpdateProgress("0", "Can't find updates.");
+
+            updating = false;
+
             // Offline, callback
             callback();
         }
+    });
+}
+
+// Whether or not it needs an update
+function NeedsUpdate () {
+    if (jsonfile.readFileSync('./launcher.json').version != data.version){
+        return true;
+    }
+
+    return false;
+}
+
+
+// Clean/Remove the download folder
+function Clean (wantedPath) {
+    var deleteFolderRecursive = function(path) {
+        if( fs.existsSync(path) ) {
+            fs.readdirSync(path).forEach(function(file,index){
+                var curPath = path + "/" + file;
+                if(fs.lstatSync(curPath).isDirectory()) { // recurse
+                    deleteFolderRecursive(curPath);
+                } else { // delete file
+                    fs.unlinkSync(curPath);
+                }
+            });
+            fs.rmdirSync(path);
+        }
+    };
+
+    deleteFolderRecursive(wantedPath);
+}
+
+// Path to the application to run
+function AppPath () {
+    // TODO: Make this platform independent
+    var os = process.platform;
+    if (os == 'darwin'){
+        return './game/WitchHunting.app/Contents/MacOS/Electron';
+    }
+    else if (os == 'win32'){
+        return "./game/WitchHunting.exe";
+    }
+    else {
+        UpdateProgress("0", "Your platform isn't supported!");
+    }
+}
+
+// Link to download for platform
+function DownloadLink () {
+    var os = process.platform;
+    if (os == 'darwin'){
+        return data.mac_url;
+    }
+    else if (os == 'win32'){
+        return data.win_url;
+    }
+    else {
+        UpdateProgress("0", "Your platform isn't supported!");
+    }
+}
+
+// Create launcher.json
+function CreateJsonData () {
+    // Create folder if doesn't exist
+    if (!fs.existsSync('./launcher.json')){
+        UpdateData({ version: "0" });
+    }
+}
+
+// Change data in launcher.json
+function UpdateData (obj) {
+    var file = './launcher.json';
+    jsonfile.writeFile(file, obj, function (err) {
+        //console.error(err);
     });
 }
 
@@ -63,11 +198,13 @@ function FetchData () {
             title: "Test version",
             changelog: "Test changelog",
             image: "./assets/sf.png",
-            url: "http://stuff"
+            mac_url: "http://www.colorado.edu/conflict/peace/download/peace_essay.ZIP",
+            win_url: "http://www.colorado.edu/conflict/peace/download/peace_essay.ZIP"
         }
     };
 }
 
+// Use this if the computer is offline
 function Offline () {
     UpdateChangelog("Offline", "Please connect to the internet...");
 }
@@ -88,7 +225,6 @@ function UpdateChangelog (title, content) {
     document.getElementById('changelog-title').innerHTML = title;
     document.getElementById('changelog-content').innerHTML = content;
 }
-
 
 // Call startup
 (function() {

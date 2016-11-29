@@ -10,6 +10,8 @@
   "license": "MIT",
   "devDependencies": {},
   "dependencies": {
-    "is-online": "^5.1.2"
+    "is-online": "^5.1.2",
+    "jsonfile": "^2.4.0",
+    "unzip": "^0.1.11"
   }
 }
